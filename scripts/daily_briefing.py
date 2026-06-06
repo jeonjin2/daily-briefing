@@ -1,10 +1,10 @@
 import os
 import requests
+from google import genai
 from dotenv import load_dotenv
+from datetime import datetime, timedelta, timezone
 
 load_dotenv()
-from datetime import datetime, timedelta, timezone
-import google.generativeai as genai
 
 TELEGRAM_TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
 TELEGRAM_CHAT_ID = os.environ["TELEGRAM_CHAT_ID"]
@@ -73,9 +73,10 @@ def get_bitcoin_data() -> dict:
     }
 
 
+_gemini = genai.Client(api_key=GEMINI_API_KEY)
+
+
 def analyze_with_gemini(btc: dict, articles: list[dict]) -> str:
-    genai.configure(api_key=GEMINI_API_KEY)
-    model = genai.GenerativeModel("gemini-1.5-flash")
 
     news_text = "\n".join(
         f"[{a['source']}] {a['title']} — {a['desc']}" for a in articles
@@ -98,7 +99,7 @@ def analyze_with_gemini(btc: dict, articles: list[dict]) -> str:
 • 이란 전쟁: 핵심 이슈 요약
 • 상관관계: 지정학적 리스크가 비트코인에 미치는 영향"""
 
-    return model.generate_content(prompt).text.strip()
+    return _gemini.models.generate_content(model="gemini-2.0-flash", contents=prompt).text.strip()
 
 
 def send_telegram(text: str):
