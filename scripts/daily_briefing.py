@@ -1,10 +1,13 @@
 import os
 import requests
+from dotenv import load_dotenv
+
+load_dotenv()
 from datetime import datetime, timedelta, timezone
 import google.generativeai as genai
 
 TELEGRAM_TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
-TELEGRAM_CHAT_ID = "7824088625"
+TELEGRAM_CHAT_ID = os.environ["TELEGRAM_CHAT_ID"]
 GEMINI_API_KEY = os.environ["GEMINI_API_KEY"]
 NEWS_API_KEY = os.environ["NEWS_API_KEY"]
 
