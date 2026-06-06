@@ -35,7 +35,7 @@ def get_iran_war_news() -> list[dict]:
         except Exception:
             title_ko = a["title"]
         results.append({"title": title_ko, "source": a["source"]["name"]})
-        if len(results) == 5:
+        if len(results) == 10:
             break
     return results
 
@@ -89,7 +89,7 @@ def main():
     articles = get_iran_war_news()
 
     emoji = "📈" if btc["change_24h"] > 0 else "📉"
-    news_block = "\n".join(f"• {a['title']}" for a in articles[:5])
+    news_block = "\n".join(f"• {a['title']}" for a in articles[:10])
 
     message = (
         f"🌅 <b>모닝 브리핑</b>  {datetime.now(timezone(timedelta(hours=9))).strftime('%m/%d %H:%M')} KST\n"
