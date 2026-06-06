@@ -1,5 +1,6 @@
 import os
 import requests
+from deep_translator import GoogleTranslator
 from dotenv import load_dotenv
 from datetime import datetime, timedelta, timezone
 
@@ -11,12 +12,10 @@ NEWS_API_KEY = os.environ["NEWS_API_KEY"]
 
 
 def get_iran_war_news() -> list[dict]:
-    since = (datetime.now(timezone.utc) - timedelta(hours=24)).strftime("%Y-%m-%dT%H:%M:%SZ")
     resp = requests.get(
         "https://newsapi.org/v2/everything",
         params={
-            "q": "(Iran) AND (war OR attack OR missile OR strike OR conflict OR nuclear)",
-            "from": since,
+            "q": "Middle East OR oil price OR Iran OR crude oil OR Hormuz",
             "sortBy": "publishedAt",
             "language": "en",
             "pageSize": 10,
@@ -26,11 +25,19 @@ def get_iran_war_news() -> list[dict]:
     )
     resp.raise_for_status()
     articles = resp.json().get("articles", [])
-    return [
-        {"title": a["title"], "source": a["source"]["name"]}
-        for a in articles
-        if a.get("title") and "[Removed]" not in a["title"]
-    ][:8]
+    translator = GoogleTranslator(source="en", target="ko")
+    results = []
+    for a in articles:
+        if not a.get("title") or "[Removed]" in a["title"]:
+            continue
+        try:
+            title_ko = translator.translate(a["title"])
+        except Exception:
+            title_ko = a["title"]
+        results.append({"title": title_ko, "source": a["source"]["name"]})
+        if len(results) == 5:
+            break
+    return results
 
 
 def get_bitcoin_data() -> dict:
