@@ -15,7 +15,7 @@ def get_iran_war_news() -> list[dict]:
     resp = requests.get(
         "https://newsapi.org/v2/everything",
         params={
-            "q": "Middle East OR oil price OR Iran OR crude oil OR Hormuz",
+            "q": '"Iran war" OR "Iran attack" OR "Iran strike" OR "Iran missile" OR "Iran nuclear" OR "Strait of Hormuz" OR "Middle East war" OR "Iran oil" OR "Iran crude"',
             "sortBy": "publishedAt",
             "language": "en",
             "pageSize": 10,
