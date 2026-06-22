@@ -18,16 +18,6 @@ cron-job.org가 매일 05:59 KST에 GitHub Actions `workflow_dispatch`를 호출
 
 ## cron-job.org
 
-자동 등록:
-
-```bash
-CRON_JOB_ORG_API_KEY=... python scripts/create_cron_job.py
-```
-
-`GITHUB_DISPATCH_TOKEN`을 따로 지정하지 않으면 현재 `gh auth token`을 사용합니다. 더 안전하게 하려면 GitHub에서 이 repo 전용 fine-grained token을 만들고 `GITHUB_DISPATCH_TOKEN`으로 넘깁니다. 필요한 권한은 이 repo의 Actions write 권한입니다.
-
-수동 등록:
-
 Method:
 
 ```text
