@@ -1,4 +1,1 @@
-requests
-feedparser
-deep-translator
-python-dotenv
+# Runtime uses only Python standard library.

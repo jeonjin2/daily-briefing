@@ -2,24 +2,56 @@ name: Daily Briefing
 
 on:
   workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Print the digest without sending Telegram"
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: daily-briefing
+  cancel-in-progress: false
 
 jobs:
   send-briefing:
     runs-on: ubuntu-latest
-
+    timeout-minutes: 20
+    env:
+      CODEX_HOME: ${{ runner.temp }}/codex-home
+      CODEX_AUTH_JSON: ${{ secrets.CODEX_AUTH_JSON }}
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+      TELEGRAM_DRY_RUN: ${{ github.event.inputs.dry_run == 'true' && '1' || '0' }}
+      TIMEZONE: Asia/Seoul
+      DIGEST_DAYS: "3"
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-node@v4
         with:
-          python-version: "3.12"
+          node-version: "22"
 
-      - name: Install dependencies
-        run: pip install -r requirements.txt
+      - name: Install Codex CLI
+        run: npm install -g @openai/codex
+
+      - name: Restore Codex auth
+        run: |
+          test -n "$CODEX_AUTH_JSON"
+          mkdir -p "$CODEX_HOME"
+          printf '%s' "$CODEX_AUTH_JSON" > "$CODEX_HOME/auth.json"
+          chmod 600 "$CODEX_HOME/auth.json"
+
+      - name: Verify required secrets
+        run: |
+          test -n "$TELEGRAM_BOT_TOKEN"
+          test -n "$TELEGRAM_CHAT_ID"
 
       - name: Run daily briefing
-        env:
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          NEWS_API_KEY: ${{ secrets.NEWS_API_KEY }}
-        run: python scripts/daily_briefing.py
+        run: ./run.sh
