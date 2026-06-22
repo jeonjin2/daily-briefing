@@ -24,7 +24,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
-      CODEX_HOME: ${{ runner.temp }}/codex-home
       CODEX_AUTH_JSON: ${{ secrets.CODEX_AUTH_JSON }}
       TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
       TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
@@ -44,9 +43,11 @@ jobs:
       - name: Restore Codex auth
         run: |
           test -n "$CODEX_AUTH_JSON"
-          mkdir -p "$CODEX_HOME"
-          printf '%s' "$CODEX_AUTH_JSON" > "$CODEX_HOME/auth.json"
-          chmod 600 "$CODEX_HOME/auth.json"
+          codex_home="$RUNNER_TEMP/codex-home"
+          mkdir -p "$codex_home"
+          printf '%s' "$CODEX_AUTH_JSON" > "$codex_home/auth.json"
+          chmod 600 "$codex_home/auth.json"
+          echo "CODEX_HOME=$codex_home" >> "$GITHUB_ENV"
 
       - name: Verify required secrets
         run: |
